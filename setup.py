@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup
 setup(name='scalop',
       version='1.0',
       description='Sequence-based antibody CAnonical LOoP structure annotation',

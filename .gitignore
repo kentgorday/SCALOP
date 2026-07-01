@@ -1,0 +1,14 @@
+# pixi: commit pixi.toml AND pixi.lock, but never the installed envs
+.pixi/
+
+# Python build / editable-install artifacts
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+
+# Editor backups & OS cruft
+*~
+.DS_Store
