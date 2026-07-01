@@ -1,0 +1,13 @@
+Numbering scheme: imgt 
+CDR definition: chothia
+Input	CDR	Sequence	Canonical	Median
+3mxwH	H1	GYTFIDE	H1-7-A	4plj_D
+3mxwH	H2	RPYSGE	H2-6-D	3gbm_H
+3mxwL	L1	KASQSVSNDLT	L1-11-A	5gis_L
+3mxwL	L2	YASNRYT	L2-7-A	2g5b_A
+3mxwL	L3	QQDYGSPPT	L3-9,10-A	5vpl_C
+12e8H	H1	GFNIKDY	H1-7-A	4plj_D
+12e8H	H2	DPEIGD	H2-6-A	5tkj_A
+12e8M	L1	KASQNVGTAVA	L1-11-A	5gis_L
+12e8M	L2	SASNRYT	L2-7-A	2g5b_A
+12e8M	L3	QQYSSYPLT	L3-9,10-A	5vpl_C

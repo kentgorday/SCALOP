@@ -49,10 +49,16 @@ pytest = "<10"           # cap at current major; resolves to newest supporting p
 [feature.legacy.pypi-dependencies]
 scalop = { path = ".", editable = true }
 
+# `no-default-feature` (below) drops the project-level [tasks] from this env, so
+# the test task must be (re)declared on the legacy feature to be runnable here.
+[feature.legacy.tasks]
+test = "pytest -q"
+
 [environments]
 # no-default-feature: use ONLY the legacy feature, so the modern python/hmmer
 # pins in [dependencies] don't leak in and conflict with the period pins above.
 legacy = { features = ["legacy"], no-default-feature = true }
 
 [tasks]
+# test scope + the spawn/cache workaround live in pytest.ini
 test = "pytest -q"
