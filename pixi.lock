@@ -1570,8 +1570,8 @@ packages:
   timestamp: 1765813902568
 - pypi: ./
   name: scalop
-  version: '1.0'
-  sha256: 201883d39215a943c622c66164c27fd3e801d47799261ef5dba9135ab84bf1f5
+  version: 1.0.0
+  sha256: 2e45841858fd3424927a3f1acc13e1a1c177f79ce39e0421b1dbe09936be3b17
 - conda: https://conda.anaconda.org/conda-forge/noarch/six-1.17.0-pyhe01879c_1.conda
   sha256: 458227f759d5e3fcec5d9b7acce54e10c9e1f4f4b7ec978f3bfd54ce4ee9853d
   md5: 3339e3b65d58accf4ca4fb8748ab16b3

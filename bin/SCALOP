@@ -39,7 +39,7 @@ AUTHORS
     Contact: opig@stats.ox.ac.uk
 
 Copyright (C) {0} Oxford Protein Informatics Group (OPIG)
-Freely distributed under the GNU General Public License (GPLv3).
+Freely distributed under the BSD 3-Clause License.
 """.format(datetime.datetime.now().year)
 
 if __name__ == '__main__':

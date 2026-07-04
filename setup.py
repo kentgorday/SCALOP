@@ -1,6 +1,6 @@
 from setuptools import setup
 setup(name='scalop',
-      version='1.0',
+      version='1.0.0',
       description='Sequence-based antibody CAnonical LOoP structure annotation',
       author='Wing Ki Wong',
       author_email='opig@stats.ox.ac.uk',
