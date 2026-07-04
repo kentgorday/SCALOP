@@ -83,7 +83,7 @@ def residue_is_amino_acid(code):
 # Global function to make sure a PDB code is ok
 def validate_pdb_code(pdbcode):
     import re
-    p = re.compile('[<>&\|!]')
+    p = re.compile(r'[<>&\|!]')
     assert isinstance(pdbcode, str) and len(pdbcode)==4, "Invalid PDB code: "+pdbcode
     assert not p.search(pdbcode), "PDB code contains illegal characters: "+pdbcode
 

@@ -6,10 +6,9 @@ These intentionally check *that* outputs exist, not *what* they are. Their jobs:
      canonical-form assignment), and
   2. be the scaffold we later grow into value-checking golden/regression tests.
 
-Until the modernization work fixes np.float (removed in numpy >= 1.24), the
-pristine source only runs in the period-appropriate env:
+Run with:
 
-    pixi run -e legacy test
+    pixi run test
 """
 from pathlib import Path
 

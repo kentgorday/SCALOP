@@ -7,7 +7,7 @@ import multiprocessing.pool
 from string import ascii_uppercase
 import subprocess
 
-from .anarci import run_anarci
+from anarci import run_anarci
 from .utils import *
 
 

@@ -1,5 +1,5 @@
 from .region_definitions import Accept
-from .anarci import run_anarci
+from anarci import run_anarci
 
 import os, sys, time, re
 import pickle
@@ -53,7 +53,7 @@ def get_PSSM(storepos):
 	for pos in sorted(storepos):
 		for resi in range(20):
 			if storepos[pos][resi] == 0:
-				storepos[pos][resi] = np.float(0.001)
+				storepos[pos][resi] = 0.001
 			else:
 				storepos[pos][resi] /=float(nseq[pos])
 	pssm = {pos: np.log2(np.array(storepos[pos])/float(0.05)) for pos in sorted(storepos)}

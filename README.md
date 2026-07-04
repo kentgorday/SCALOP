@@ -13,7 +13,7 @@ The easiest way to install SCALOP dependencies is using `conda`:
 git clone https://github.com/oxpig/SCALOP.git
 conda create -n scalop-env python=3.8 -y
 conda activate scalop-env
-conda install -c bioconda numpy pandas hmmer biopython -y
+conda install -c bioconda numpy pandas hmmer biopython anarci -y
 pip install SCALOP/
 ```
 
@@ -38,6 +38,7 @@ assign(input)
 * HMMER 3.1b2 (February 2015); http://hmmer.org/
 * numpy v. 1.10+
 * pandas
+* ANARCI (BSD-3); https://github.com/oxpig/ANARCI
 		
 ## Authors
  

@@ -14,9 +14,9 @@ Two tiers:
   * Tier B  -- Canonical and Median equality. Breaks if database loading /
     scoring regresses.
 
-The pristine source only runs under the period-appropriate env, so:
+Run with:
 
-    pixi run -e legacy test
+    pixi run test
 """
 from pathlib import Path
 

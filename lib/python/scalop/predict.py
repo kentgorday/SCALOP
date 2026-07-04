@@ -2,7 +2,7 @@
 
 import numpy as np
 import json, pickle, os, time, datetime, re, sys, multiprocessing
-from .anarci import run_anarci
+from anarci import run_anarci
 from .utils import getnumberedCDRloop, resns, SimpleFastaParser, write_txt, print_result
 from .LoopGraft import export_structure
 
@@ -78,12 +78,12 @@ def assignweb(args):
         for seqid,seq in _seqs:
             if '/' in seq:
                 seqh,seql = seq.split('/')
-                seqh = re.sub('[\W]+','',seqh)
-                seql = re.sub('[\W]+','',seql)
+                seqh = re.sub(r'[\W]+','',seqh)
+                seql = re.sub(r'[\W]+','',seql)
                 seqs.append((seqid+'_1',seqh))
                 seqs.append((seqid+'_2',seql))
             else:
-                seqs.append((seqid,re.sub('[\W\/]+','',seq)))
+                seqs.append((seqid,re.sub(r'[\W\/]+','',seq)))
     else: # Single sequence input
         permitbuildstruct = True
         if '/' in args.seq: # must be Heavy-chain/Light-chain 
@@ -140,12 +140,12 @@ def assigncmd(args):
         for seqid,seq in _seqs:
             if '/' in seq:
                 seqh,seql = seq.split('/')
-                seqh = re.sub('[\W]+','',seqh)
-                seql = re.sub('[\W]+','',seql)
+                seqh = re.sub(r'[\W]+','',seqh)
+                seql = re.sub(r'[\W]+','',seql)
                 seqs.append((seqid+'_1',seqh))
                 seqs.append((seqid+'_2',seql))
             else:
-                seqs.append((seqid,re.sub('[\W\/]+','',seq)))
+                seqs.append((seqid,re.sub(r'[\W\/]+','',seq)))
     else: # Single sequence input
         permitbuildstruct = True
         if '/' in args.seq: # must be Heavy-chain/Light-chain 
@@ -215,12 +215,12 @@ def assign(seq,scheme='imgt',definition='north',dbv='latest',structuref='',loopd
         for seqid,seq in _seqs:
             if '/' in seq:
                 seqh,seql = seq.split('/')
-                seqh = re.sub('[\W]+','',seqh)
-                seql = re.sub('[\W]+','',seql)
+                seqh = re.sub(r'[\W]+','',seqh)
+                seql = re.sub(r'[\W]+','',seql)
                 seqs.append(('{}_1'.format(seqi),seqh))
                 seqs.append(('{}_2'.format(seqi),seql))
             else:
-                seqs.append((seqid,re.sub('[\W\/]+','',seq)))
+                seqs.append((seqid,re.sub(r'[\W\/]+','',seq)))
     elif type(seq) == dict: # in dict
         for seqn in seq:
             if '/' in seq[seqn]: # must be Heavy-chain/Light-chain 

@@ -5,60 +5,21 @@ description = "Sequence-based antibody Canonical LOoP structure annotation"
 channels = ["conda-forge", "bioconda"]
 platforms = ["osx-arm64", "osx-64", "linux-64"]
 
-# ---------------------------------------------------------------------------
-# default: the modernization TARGET — current libraries, native arm64.
-#
-# NOTE: the pristine SCALOP source uses np.float (removed in numpy >= 1.24), so
-# the code will NOT run in this env until the modernization work lands. Use the
-# `legacy` env below to run the tool / capture the correctness baseline for now:
-#     pixi run -e legacy test
-# When `pixi run test` (this env) starts passing, np.float & friends are fixed.
-# ---------------------------------------------------------------------------
 [dependencies]
 python = "3.11.*"
 numpy = "*"
 pandas = "*"
 biopython = "*"
 hmmer = "3.4.*"
-pytest = "*"             # uncapped in the modernization target env
+anarci = "2024.05.21.*"  # BSD-3 ANARCI from bioconda (replaces the removed GPLv3 bundle)
+pytest = "*"
 
-# Install the local package editable so `import scalop` works from anywhere in
-# the env (no repo-root / sys.path shim needed). Deps stay conda-managed above —
-# setup.py intentionally declares no install_requires so pip/uv won't pull PyPI
-# copies of numpy/pandas over the conda ones.
+# Editable install so `import scalop` works anywhere in the env. Runtime deps stay
+# conda-managed above -- setup.py declares no install_requires, so pip/uv won't pull
+# PyPI copies of numpy/pandas/anarci over the conda-provided ones.
 [pypi-dependencies]
 scalop = { path = ".", editable = true }
 
-# ---------------------------------------------------------------------------
-# legacy: period-appropriate BASELINE-CAPTURE env (~2020-04-28), Intel builds
-# run via Rosetta. Runs the UNMODIFIED source so the golden baseline is frozen
-# before any code changes contaminate it. Version bounds below are the latest
-# release available on or before 2020-04-28 (verified against release history).
-# ---------------------------------------------------------------------------
-[feature.legacy]
-platforms = ["osx-64"]
-
-[feature.legacy.dependencies]
-python = "3.8.*"         # kept as a series pin, not date-bounded
-numpy = "<=1.18.3"       # next: 1.18.4 (2020-05-03); np.float still works here
-pandas = "<=1.0.3"       # next: 1.0.4  (2020-05-29)
-biopython = "<=1.76"     # next: 1.77   (2020-05-25)
-hmmer = "==3.3.2"        # period is 3.3 (2019-11); bioconda osx-64 floor is 3.3.2
-pytest = "<10"           # cap at current major; resolves to newest supporting py3.8
-
-[feature.legacy.pypi-dependencies]
-scalop = { path = ".", editable = true }
-
-# `no-default-feature` (below) drops the project-level [tasks] from this env, so
-# the test task must be (re)declared on the legacy feature to be runnable here.
-[feature.legacy.tasks]
-test = "pytest -q"
-
-[environments]
-# no-default-feature: use ONLY the legacy feature, so the modern python/hmmer
-# pins in [dependencies] don't leak in and conflict with the period pins above.
-legacy = { features = ["legacy"], no-default-feature = true }
-
 [tasks]
-# test scope + the spawn/cache workaround live in pytest.ini
+# collection scope lives in pytest.ini
 test = "pytest -q"

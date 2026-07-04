@@ -2,7 +2,7 @@
 
 import numpy as np
 import json, pickle, os, time, datetime, re, sys, multiprocessing
-from .anarci import run_anarci
+from anarci import run_anarci
 from .utils import getnumberedCDRloop, resns, SimpleFastaParser, write_txt, print_result
 
 
