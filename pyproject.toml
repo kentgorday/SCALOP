@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "scalop"
+version = "1.0.0"
+description = "Sequence-based antibody Canonical LOoP structure annotation"
+readme = "README.md"
+requires-python = ">=3.8"
+license = "BSD-3-Clause"
+license-files = ["LICENCE"]
+authors = [{ name = "Wing Ki Wong", email = "opig@stats.ox.ac.uk" }]
+
+[project.urls]
+Homepage = "http://opig.stats.ox.ac.uk/webapps/SCALOP"
+
+[tool.setuptools]
+# Keep shipping the standalone CLI as a script (per project decision).
+script-files = ["bin/SCALOP"]
+
+# The package lives under lib/python/ (non-standard src root).
+[tool.setuptools.packages.find]
+where = ["lib/python"]
+include = ["scalop*"]
+
+[tool.setuptools.package-data]
+scalop = ["database/*"]
