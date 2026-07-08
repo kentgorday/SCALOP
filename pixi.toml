@@ -13,13 +13,20 @@ biopython = "*"
 hmmer = "3.4.*"
 anarci = "2024.05.21.*"  # BSD-3 ANARCI from bioconda (replaces the removed GPLv3 bundle)
 pytest = "*"
+mypy = ">=1.20,<2"
 
 # Editable install so `import scalop` works anywhere in the env. Runtime deps stay
 # conda-managed above -- setup.py declares no install_requires, so pip/uv won't pull
 # PyPI copies of numpy/pandas/anarci over the conda-provided ones.
 [pypi-dependencies]
 scalop = { path = ".", editable = true }
+ruff = ">=0.11,<1"
 
 [tasks]
 # collection scope lives in pytest.ini
 test = "pytest -q"
+format = "ruff format lib/python/scalop tests"
+format-check = "ruff format --check lib/python/scalop tests"
+lint = "ruff check lib/python/scalop tests"
+typecheck = "mypy"
+check = { depends-on = ["lint", "format-check", "typecheck"] }

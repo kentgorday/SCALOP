@@ -10,10 +10,10 @@ Run with:
 
     pixi run test
 """
+
 from pathlib import Path
 
 import pytest
-
 from scalop.predict import assign
 
 REPO = Path(__file__).resolve().parent.parent
@@ -23,8 +23,8 @@ EXAMPLES = REPO / "example"
 DBV = "2019-10"
 
 EXAMPLE_FASTAS = [
-    EXAMPLES / "sample_sequences.fasta",   # clean mouse heavy/light chains
-    EXAMPLES / "kabattrimmed.fasta",       # messy chicken chains (edge cases)
+    EXAMPLES / "sample_sequences.fasta",  # clean mouse heavy/light chains
+    EXAMPLES / "kabattrimmed.fasta",  # messy chicken chains (edge cases)
 ]
 
 

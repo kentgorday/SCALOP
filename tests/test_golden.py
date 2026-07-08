@@ -18,10 +18,10 @@ Run with:
 
     pixi run test
 """
+
 from pathlib import Path
 
 import pytest
-
 from scalop.predict import assign
 
 REPO = Path(__file__).resolve().parent.parent
@@ -88,17 +88,18 @@ def test_tier_a_sequences_and_invariants(combo):
     expected, actual, results = combo["expected"], combo["actual"], combo["results"]
 
     # Same set of chains numbered as the webserver.
+    only_ours = sorted(set(actual) - set(expected))
+    only_web = sorted(set(expected) - set(actual))
     assert set(actual) == set(expected), (
-        "numbered-chain set differs -- only ours: %s ; only webserver: %s"
-        % (sorted(set(actual) - set(expected)), sorted(set(expected) - set(actual)))
+        f"numbered-chain set differs -- only ours: {only_ours} ; only webserver: {only_web}"
     )
 
     exp, act = _cells(expected), _cells(actual)
-    assert set(act) == set(exp), "CDR key set differs: %s" % (set(act) ^ set(exp))
+    assert set(act) == set(exp), f"CDR key set differs: {set(act) ^ set(exp)}"
 
     # Tier A oracle: loop sequences match (DB-independent).
     seq_mismatch = {k: (act[k][0], exp[k][0]) for k in exp if act[k][0] != exp[k][0]}
-    assert not seq_mismatch, "loop sequence mismatches {key: (ours, web)}: %s" % seq_mismatch
+    assert not seq_mismatch, f"loop sequence mismatches {{key: (ours, web)}}: {seq_mismatch}"
 
     # Oracle-free invariants.
     for r in results:
@@ -107,7 +108,7 @@ def test_tier_a_sequences_and_invariants(combo):
             continue
         cdrs = set(outs)
         assert cdrs <= HEAVY_CDRS or cdrs <= LIGHT_CDRS, (
-            "%s has mixed heavy/light CDRs: %s" % (r["seqname"], cdrs)
+            f"{r['seqname']} has mixed heavy/light CDRs: {cdrs}"
         )
         chain_seq = r["input"][1]
         for cdr, val in outs.items():
@@ -115,13 +116,13 @@ def test_tier_a_sequences_and_invariants(combo):
             if seq in ("", "None"):
                 continue
             assert seq in chain_seq, (
-                "%s %s loop %r is not a substring of the input chain" % (r["seqname"], cdr, seq)
+                f"{r['seqname']} {cdr} loop {seq!r} is not a substring of the input chain"
             )
             if canonical != "None":
                 lengths = {int(x) for x in canonical.split("-")[1].split(",")}
                 assert len(seq) in lengths, (
-                    "%s %s loop length %d not among canonical %s lengths %s"
-                    % (r["seqname"], cdr, len(seq), canonical, sorted(lengths))
+                    f"{r['seqname']} {cdr} loop length {len(seq)} "
+                    f"not among canonical {canonical} lengths {sorted(lengths)}"
                 )
 
 
@@ -133,4 +134,4 @@ def test_tier_b_canonical_and_median(combo):
         for k in exp
         if act.get(k, missing)[1:] != exp[k][1:]
     }
-    assert not mism, "canonical/median mismatches: %s" % mism
+    assert not mism, f"canonical/median mismatches: {mism}"

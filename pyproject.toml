@@ -7,7 +7,7 @@ name = "scalop"
 version = "1.0.0"
 description = "Sequence-based antibody Canonical LOoP structure annotation"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.11"
 license = "BSD-3-Clause"
 license-files = ["LICENCE"]
 authors = [{ name = "Wing Ki Wong", email = "opig@stats.ox.ac.uk" }]
@@ -26,3 +26,50 @@ include = ["scalop*"]
 
 [tool.setuptools.package-data]
 scalop = ["database/*"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 99
+# prosci is vendored (FREAD lineage); LoopGraft/updatedb are grafting/builddb
+# slated for reimplementation -- format once but don't lint-gate them.
+extend-exclude = [
+    "lib/python/scalop/prosci",
+    "lib/python/scalop/region_definitions.py",
+    "lib/python/scalop/LoopGraft.py",
+    "lib/python/scalop/updatedb.py",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+mypy_path = "lib/python"
+# Type-check the active prediction path only. The grafting (LoopGraft), builddb
+# (updatedb) and vendored prosci modules are excluded: they depend on untyped /
+# absent third-party (FREAD, SAbDab/ABDB) and are slated for reimplementation.
+files = [
+    "lib/python/scalop/__init__.py",
+    "lib/python/scalop/predict.py",
+    "lib/python/scalop/utils.py",
+    "tests",
+]
+
+[[tool.mypy.overrides]]
+# Third-party packages without type stubs.
+module = ["anarci.*", "Bio.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# Modules we intentionally don't type yet; treat their exports as untyped.
+module = [
+    "scalop.LoopGraft",
+    "scalop.updatedb",
+    "scalop.region_definitions",
+    "scalop.prosci.*",
+]
+follow_imports = "skip"
+ignore_missing_imports = true
