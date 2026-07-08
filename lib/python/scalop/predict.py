@@ -1,5 +1,7 @@
 # Assign canonical forms based on sequence-based length-independent clustering results
+from __future__ import annotations
 
+import argparse
 import datetime
 import json
 import multiprocessing
@@ -8,16 +10,22 @@ import pickle
 import re
 import sys
 import time
+from types import SimpleNamespace
+from typing import Any
 
 import numpy as np
 from anarci import run_anarci
 
+from ._types import Assignment
 from .LoopGraft import export_structure
 from .utils import SimpleFastaParser, getnumberedCDRloop, print_result, resns, write_txt
 
+# Populated by ip() from the pickled cluster/PSSM database.
+outm: dict[str, Any] = {}
+clustercenters: dict[str, Any] = {}
 
-def ip(scheme, definition, dbv):
 
+def ip(scheme: str, definition: str, dbv: str) -> None:
     global outm
     global clustercenters
     scalop_path = os.path.split(__file__)[0]  # from scalop database
@@ -25,12 +33,10 @@ def ip(scheme, definition, dbv):
     tlist = []
     if dbv == "latest":
         for n in os.listdir(os.path.join(scalop_path, "database")):
-            if re.match(rf"{scheme}_{definition}_v(\d+)-(\d+).pickle", n) is None:
+            m = re.match(rf"{scheme}_{definition}_v(\d+)-(\d+).pickle", n)
+            if m is None:
                 continue
-            nt = datetime.datetime.strptime(
-                "".join(re.match(rf"{scheme}_{definition}_v(\d+)-(\d+).pickle", n).groups()),
-                "%Y%m",
-            )
+            nt = datetime.datetime.strptime("".join(m.groups()), "%Y%m")
             tlist.append((nt, n))
         if tlist == []:
             sys.stderr.write("Database is missing. Aborting!\n")
@@ -46,7 +52,7 @@ def ip(scheme, definition, dbv):
         outm, clustercenters, _ = pickle.load(f, encoding="latin1")
 
 
-def _score_licanonicalliPSSM(sequence, pssm):
+def _score_licanonicalliPSSM(sequence: list[Any], pssm: dict[Any, Any]) -> float:
     score = float(0)
     for pos, res in sequence:
         if pos not in pssm or pssm[pos][resns.index(res.upper())] == np.nan:
@@ -56,17 +62,17 @@ def _score_licanonicalliPSSM(sequence, pssm):
     return float(score) / float(len(sequence))
 
 
-assignmentthresholds = {
+assignmentthresholds: dict[str, float] = {
     "H1": 0.5,
     "H2": -0.5,
     "L1": -0.5,
     "L2": -1,
     "L3": -1,
 }  # legacy from 2017 PSSM
-cdrs = {"H": ["H1", "H2"], "L": ["L1", "L2", "L3"]}
+cdrs: dict[str, list[str]] = {"H": ["H1", "H2"], "L": ["L1", "L2", "L3"]}
 
 
-def _assign(sequence, cdr):
+def _assign(sequence: list[Any], cdr: str) -> list[str]:
     assignmentthreshold = assignmentthresholds[cdr]
     loopseq = "".join([x[1] for x in sequence]).upper()
     cdr = cdr.upper()
@@ -101,14 +107,12 @@ def _assign(sequence, cdr):
         return [cdr, loopseq, "None", "None"]
 
 
-def assignweb(args):
-
-    seqs = {}
+def assignweb(args: argparse.Namespace) -> tuple[list[Assignment], str, str | bool]:
+    seqs: list[tuple[str, str]] = []
     permitbuildstruct = False
     if os.path.isfile(args.seq):
         with open(args.seq) as f:
             _seqs = list(SimpleFastaParser(f))
-        seqs = []
         for seqid, seq in _seqs:
             if "/" in seq:
                 seqh, seql = seq.split("/")
@@ -126,7 +130,7 @@ def assignweb(args):
         else:
             seqs = [("input", args.seq)]
 
-    assignresults = [{} for i in range(len(seqs))]
+    assignresults: list[Assignment] = [{} for _ in range(len(seqs))]
 
     # Number the heavy / light chain using ANARCI
     ncpu = multiprocessing.cpu_count()
@@ -138,9 +142,7 @@ def assignweb(args):
     for i in range(len(numberedseqs[0])):
         seqname = numberedseqs[0][i][0]
         assert seqname == seqs[i][0]
-        assignresults[i].update({"seqname": seqname})
-        assignresults[i].update({"input": seqs[i]})
-        assignresults[i].update({"outputs": {}})
+        assignresults[i] = {"seqname": seqname, "input": seqs[i], "outputs": {}}
         # Find if ANARCI can number this chain (whether or not it is an antibody chain)
         if numberedseqs[2][i] is None:
             continue
@@ -156,7 +158,7 @@ def assignweb(args):
             # Assign canonical form
             assignresults[i]["outputs"].update({cdr: _assign(loop, cdr)})
     opf = write_txt(assignresults, args.outputdir, args.scheme, args.definition)
-    outpdbf = False
+    outpdbf: str | bool = False
 
     if permitbuildstruct and args.structuref != "":
         _outpdbf = opf.replace(".txt", ".pdb")
@@ -169,14 +171,12 @@ def assignweb(args):
     return assignresults, opf, outpdbf
 
 
-def assigncmd(args):
-
-    seqs = {}
+def assigncmd(args: argparse.Namespace) -> list[Assignment]:
+    seqs: list[tuple[str, str]] = []
     permitbuildstruct = False
     if os.path.isfile(args.seq):
         with open(args.seq) as f:
             _seqs = list(SimpleFastaParser(f))
-        seqs = []
         for seqid, seq in _seqs:
             if "/" in seq:
                 seqh, seql = seq.split("/")
@@ -194,7 +194,7 @@ def assigncmd(args):
         else:
             seqs = [("input", args.seq)]
 
-    assignresults = [{} for i in range(len(seqs))]
+    assignresults: list[Assignment] = [{} for _ in range(len(seqs))]
 
     # Number the heavy / light chain using ANARCI
     ncpu = multiprocessing.cpu_count()
@@ -206,9 +206,7 @@ def assigncmd(args):
     for i in range(len(numberedseqs[0])):
         seqname = numberedseqs[0][i][0]
         assert seqname == seqs[i][0]
-        assignresults[i].update({"seqname": seqname})
-        assignresults[i].update({"input": seqs[i]})
-        assignresults[i].update({"outputs": {}})
+        assignresults[i] = {"seqname": seqname, "input": seqs[i], "outputs": {}}
         # Find if ANARCI can number this chain (whether or not it is an antibody chain)
         if numberedseqs[2][i] is None:
             continue
@@ -243,23 +241,23 @@ def assigncmd(args):
         opf = os.path.join(args.outputdir, f"{time.time()}.{args.outputformat}")
         if not os.path.exists(args.outputdir):
             os.mkdir(args.outputdir)
-        with open(opf, "wb") as f:
+        with open(opf, "w") as f:
             json.dump(assignresults, f)
         print(f"Write results to {opf}")
     return assignresults
 
 
 def assign(
-    seq,
-    scheme="imgt",
-    definition="north",
-    dbv="latest",
-    structuref="",
-    loopdb="",
-    hc="",
-    lc="",
-    blacklist=None,
-):
+    seq: str | list[str] | dict[str, str],
+    scheme: str = "imgt",
+    definition: str = "north",
+    dbv: str = "latest",
+    structuref: str = "",
+    loopdb: str = "",
+    hc: str = "",
+    lc: str = "",
+    blacklist: list[str] | None = None,
+) -> list[Assignment]:
     """
     args: <sequence(s)> <numbering scheme> <cdr definition> <db version>
           <structure file> <loop database directory> <heavy chain ID>
@@ -268,7 +266,7 @@ def assign(
 
     if blacklist is None:
         blacklist = []
-    seqs = []
+    seqs: list[tuple[str, str]] = []
     permitbuildstruct = False
     if isinstance(seq, str) and os.path.isfile(seq):
         with open(seq) as f:
@@ -308,7 +306,7 @@ def assign(
             seqs = [("input_1", seqh), ("input_2", seql)]
         else:
             seqs = [("input", seq)]
-    assignresults = [{} for i in range(len(seqs))]
+    assignresults: list[Assignment] = [{} for _ in range(len(seqs))]
     # Number the heavy / light chain using ANARCI
 
     ncpu = multiprocessing.cpu_count()
@@ -326,9 +324,7 @@ def assign(
         chain = "H" if numberedseqs[2][i][0]["chain_type"] == "H" else "L"
         seqname = numberedseqs[0][i][0]
         assert seqname == seqs[i][0]
-        assignresults[i].update({"seqname": seqname})
-        assignresults[i].update({"input": seqs[i]})
-        assignresults[i].update({"outputs": {}})
+        assignresults[i] = {"seqname": seqname, "input": seqs[i], "outputs": {}}
         for cdr in cdrs[chain]:
             # Frame the CDR region
             loop, _ = getnumberedCDRloop(numberedseqs[1][i][0][0], cdr, scheme, definition)
@@ -336,12 +332,7 @@ def assign(
             # Assign canonical form
             assignresults[i]["outputs"].update({cdr: _assign(loop, cdr)})
     if permitbuildstruct and structuref != "":
-        from collections import namedtuple
-
-        args = namedtuple(
-            "args",
-            ["scheme", "definition", "dbv", "structuref", "loopdb", "hc", "lc", "blacklist"],
-        )(
+        args = SimpleNamespace(
             scheme=scheme,
             definition=definition,
             dbv=dbv,

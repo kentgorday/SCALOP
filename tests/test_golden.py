@@ -20,9 +20,16 @@ Run with:
 """
 
 from pathlib import Path
+from typing import Any
 
 import pytest
+from scalop._types import Assignment
 from scalop.predict import assign
+
+# A parsed result cell (loop_sequence, canonical_id, median_id) and the
+# {seqname: {cdr: cell}} table shape used on both the expected and actual sides.
+Cell = tuple[str, str, str]
+Table = dict[str, dict[str, Cell]]
 
 REPO = Path(__file__).resolve().parent.parent
 GOLDEN_DIR = REPO / "tests" / "golden" / "webserver"
@@ -40,13 +47,13 @@ LIGHT_CDRS = {"L1", "L2", "L3"}
 GOLDEN_FILES = sorted(GOLDEN_DIR.glob("*.txt"))
 
 
-def parse_webserver(path):
+def parse_webserver(path: Path) -> tuple[str, str, Table]:
     """Return (scheme, definition, {seqname: {cdr: (seq, canonical, median)}})."""
     lines = path.read_text().replace("\r", "").split("\n")
     scheme = lines[0].split(":", 1)[1].strip()
     definition = lines[1].split(":", 1)[1].strip()
     # lines[2] is the column header (Input/CDR/Sequence/Canonical/Median).
-    table = {}
+    table: Table = {}
     for line in lines[3:]:
         if not line.strip():
             continue
@@ -55,9 +62,9 @@ def parse_webserver(path):
     return scheme, definition, table
 
 
-def actual_table(results):
+def actual_table(results: list[Assignment]) -> Table:
     """assign() results -> {seqname: {cdr: (seq, canonical, median)}} (numbered chains)."""
-    table = {}
+    table: Table = {}
     for r in results:
         for cdr, val in (r.get("outputs") or {}).items():
             _, seq, canonical, median = val[:4]
@@ -65,13 +72,13 @@ def actual_table(results):
     return table
 
 
-def _cells(table):
+def _cells(table: Table) -> dict[tuple[str, str], Cell]:
     """Flatten to {(seqname, cdr): (seq, canonical, median)} for easy diffing."""
     return {(s, c): v for s, cdrs in table.items() for c, v in cdrs.items()}
 
 
 @pytest.fixture(scope="module", params=GOLDEN_FILES, ids=lambda p: p.stem)
-def combo(request):
+def combo(request: pytest.FixtureRequest) -> dict[str, Any]:
     path = request.param
     prefix = path.stem.split("_")[0]  # "sample" | "kabat"
     scheme, definition, expected = parse_webserver(path)
@@ -84,7 +91,7 @@ def combo(request):
     }
 
 
-def test_tier_a_sequences_and_invariants(combo):
+def test_tier_a_sequences_and_invariants(combo: dict[str, Any]) -> None:
     expected, actual, results = combo["expected"], combo["actual"], combo["results"]
 
     # Same set of chains numbered as the webserver.
@@ -126,7 +133,7 @@ def test_tier_a_sequences_and_invariants(combo):
                 )
 
 
-def test_tier_b_canonical_and_median(combo):
+def test_tier_b_canonical_and_median(combo: dict[str, Any]) -> None:
     exp, act = _cells(combo["expected"]), _cells(combo["actual"])
     missing = ("<missing>", "<missing>", "<missing>")
     mism = {

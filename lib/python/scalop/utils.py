@@ -1,14 +1,19 @@
+from __future__ import annotations
+
 import os
 import time
+from collections.abc import Iterator
+from typing import Any, TextIO
 
 import numpy as np
 from anarci import run_anarci
 
+from ._types import Assignment
 from .region_definitions import Accept
 
 a = Accept()
 
-resns = [
+resns: list[str] = [
     "A",
     "R",
     "D",
@@ -30,10 +35,13 @@ resns = [
     "Y",
     "V",
 ]
-cutoffs = {"L1": 0.82, "L2": 1, "L3": 0.91, "H1": 0.8, "H2": 0.63}  # TODO: clustering cut-off
+cutoffs: dict[str, float] = {"L1": 0.82, "L2": 1, "L3": 0.91, "H1": 0.8, "H2": 0.63}
+# TODO: clustering cut-off
 
 
-def getnumberedCDRloop(numberedAb, cdr, scheme, definition):
+def getnumberedCDRloop(
+    numberedAb: list[Any], cdr: str, scheme: str, definition: str
+) -> tuple[list[Any], list[Any]]:
     a.numbering_scheme = scheme
     a.definition = definition
     a.set_regions(["CDR" + cdr])
@@ -54,7 +62,9 @@ def getnumberedCDRloop(numberedAb, cdr, scheme, definition):
     return sorted(cdrloop), anchor
 
 
-def getnumberedCDRloop_builddb(_numberedAb, cdr, scheme, definition):
+def getnumberedCDRloop_builddb(
+    _numberedAb: list[Any], cdr: str, scheme: str, definition: str
+) -> tuple[list[Any], list[Any]]:
     a.numbering_scheme = scheme
     a.definition = definition
     a.set_regions([cdr])
@@ -70,8 +80,10 @@ def getnumberedCDRloop_builddb(_numberedAb, cdr, scheme, definition):
     return sorted(cdrloop), anchor
 
 
-def anarci_fun(list_of_inputs, numbering_scheme):  # for parallel pool
-    output = {
+def anarci_fun(
+    list_of_inputs: dict[str, list[Any]], numbering_scheme: str
+) -> dict[str, dict[Any, Any]]:  # for parallel pool
+    output: dict[str, dict[Any, Any]] = {
         chain: {Abentry[0]: {} for Abentry in list_of_inputs[chain]} for chain in list_of_inputs
     }
     for chain in list_of_inputs:
@@ -84,7 +96,7 @@ def anarci_fun(list_of_inputs, numbering_scheme):  # for parallel pool
     return output
 
 
-def get_PSSM(storepos):
+def get_PSSM(storepos: dict[Any, Any]) -> dict[Any, Any]:
     nseq = {pos: sum(storepos[pos]) for pos in storepos}
     for pos in sorted(storepos):
         for resi in range(20):
@@ -97,7 +109,7 @@ def get_PSSM(storepos):
 
 
 # From BioPython
-def SimpleFastaParser(handle):
+def SimpleFastaParser(handle: TextIO) -> Iterator[tuple[str, str]]:
     """Generator function to iterate over Fasta records (as string tuples).
 
     For each record a tuple of two strings is returned, the FASTA title
@@ -146,7 +158,14 @@ def SimpleFastaParser(handle):
     raise AssertionError("Should not reach this line")
 
 
-def write_txt(assignresults, outputdir, scheme, definition, graftedstructs=None, opf=""):
+def write_txt(
+    assignresults: list[Assignment],
+    outputdir: str,
+    scheme: str,
+    definition: str,
+    graftedstructs: dict[str, str] | None = None,
+    opf: str = "",
+) -> str:
     lineout = [f"Numbering scheme: {scheme} \nCDR definition: {definition}"]
     lineout.append("\t".join(["Input", "CDR", "Sequence", "Canonical", "Median"]))
     if graftedstructs:
@@ -167,7 +186,7 @@ def write_txt(assignresults, outputdir, scheme, definition, graftedstructs=None,
     return opf
 
 
-def print_result(assignresults, scheme, definition):
+def print_result(assignresults: list[Assignment], scheme: str, definition: str) -> None:
     lineout = [f"Numbering scheme: {scheme} \nCDR definition: {definition}"]
     lineout.append("\t".join(["Input", "CDR", "Sequence", "Canonical", "Median"]))
 

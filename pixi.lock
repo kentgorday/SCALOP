@@ -1761,7 +1761,7 @@ packages:
 - pypi: ./
   name: scalop
   version: 1.0.0
-  sha256: 0cd1d26a0392e6631f5cdca63f79f369165ba343f5b42a1b9c50f67cf536317c
+  sha256: 5ba49c70d495d954a85e0d7f898f610de6512191891e59a5a8aa45a9b2cbd41c
   requires_python: '>=3.11'
 - conda: https://conda.anaconda.org/conda-forge/noarch/six-1.17.0-pyhe01879c_1.conda
   sha256: 458227f759d5e3fcec5d9b7acce54e10c9e1f4f4b7ec978f3bfd54ce4ee9853d

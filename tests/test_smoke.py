@@ -29,7 +29,7 @@ EXAMPLE_FASTAS = [
 
 
 @pytest.mark.parametrize("fasta", EXAMPLE_FASTAS, ids=lambda p: p.name)
-def test_assign_runs_on_example_fasta(fasta):
+def test_assign_runs_on_example_fasta(fasta: Path) -> None:
     assert fasta.is_file(), f"missing example input: {fasta}"
 
     results = assign(str(fasta), dbv=DBV)

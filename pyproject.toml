@@ -60,16 +60,11 @@ files = [
 
 [[tool.mypy.overrides]]
 # Third-party packages without type stubs.
-module = ["anarci.*", "Bio.*"]
+module = ["anarci.*"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 # Modules we intentionally don't type yet; treat their exports as untyped.
-module = [
-    "scalop.LoopGraft",
-    "scalop.updatedb",
-    "scalop.region_definitions",
-    "scalop.prosci.*",
-]
+module = ["scalop.LoopGraft", "scalop.region_definitions"]
 follow_imports = "skip"
 ignore_missing_imports = true
